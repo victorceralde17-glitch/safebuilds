@@ -1,306 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SafeBuild — Consultation & Booking</title>
+Unrecognized feature: 'ambient-light-sensor'.
+pen/:1582 Unrecognized feature: 'vr'.
+pen/:1582 Allow attribute will take precedence over 'allowpaymentrequest'.
+about:blank:1 An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+vendor-86cf3ca7c141ece8e9f9.chunk.js:171 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+cdpn.io/cpe/boomboom/index.html?key=index.html-07d6b87b-c1be-6690-1ac0-d883b32de60f:1 Access to script at 'https://unpkg.com/react-dom@18.3.1/umd/react-domt.js' (redirected from 'https://unpkg.com/react-dom@18/umd/react-domt.js') from origin 'https://cdpn.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+unpkg.com/react-dom@18.3.1/umd/react-domt.js:1  Failed to load resource: net::ERR_FAILED
+cdpn.io/cpe/boomboom/index.html?key=index.html-2286a08c-e1a6-81f9-26a5-74cb960d76a4:1 Access to script at 'https://unpkg.com/react-dom@18.3.1/umd/react-domsrc=' (redirected from 'https://unpkg.com/react-dom@18/umd/react-domsrc=') from origin 'https://cdpn.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+unpkg.com/react-dom@18.3.1/umd/react-domsrc=:1  Failed to load resource: net::ERR_FAILED
+15[Report Only] Refused to load the script '<URL>' because it violates the following Content Security Policy directive: "script-src 'none'". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
 
-  <!-- ✅ Tailwind & EmailJS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.emailjs.com/sdk/3.2/email.min.js"></script>
+cdpn.io/cpe/boomboom/index.html?key=index.html-4482c1ce-e072-e4f5-6ad2-2d002f73cc4b:41 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-mvQ1wR4lT1DBIjLf+6cqtjuDZW0TJBdj5zg0MlPZ2w8='), or a nonce ('nonce-...') is required to enable inline execution.
 
-  <!-- ✅ React, ReactDOM, Babel -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
+ [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-krm0EwqLRMpkvsTzdOR/7ZzDHbyFY2J3qYFrBKebhI8='), or a nonce ('nonce-...') is required to enable inline execution.
 
-<body class="bg-gray-50 text-gray-900">
-  <div id="root"></div>
+ [Report Only] Refused to connect to 'https://api.emailjs.com/api/v1.0/email/send' because it violates the following Content Security Policy directive: "connect-src 'none'".
 
-  <script type="text/babel">
-    // ✅ Initialize EmailJS
-    emailjs.init("D_NUbf5PnJavAf60R"); // Your Public Key
+ [Report Only] Refused to connect to 'https://api.emailjs.com/api/v1.0/email/send' because it violates the following Content Security Policy directive: "connect-src 'none'".
 
-    const EMAILJS_SERVICE_ID = "service_eywunyt";
-    const EMAILJS_TEMPLATE_CONFIRM = "template_7nyhfs8";
-    const EMAILJS_TEMPLATE_CANCEL = "template_lko0n9l";
-
-    // ✅ Toast Notifications
-    function useToast() {
-      const [toasts, setToasts] = React.useState([]);
-      const push = (msg) => {
-        const id = Date.now();
-        setToasts((t) => [...t, { id, msg }]);
-        setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 6000);
-      };
-      const Toasts = () => (
-        <div className="fixed bottom-4 right-4 z-50 space-y-2">
-          {toasts.map((t) => (
-            <div key={t.id} className="bg-black text-white px-4 py-2 rounded shadow">{t.msg}</div>
-          ))}
-        </div>
-      );
-      return { push, Toasts };
-    }
-
-    // ✅ Email Senders
-    const sendConfirmationEmail = (b) => emailjs.send(
-      EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM,
-      {
-        to_name: b.name,
-        to_email: b.email,
-        booking_id: b.id,
-        serviceTitle: b.serviceTitle,
-        address: b.address,
-        contact: b.contact,
-        serviceDate: b.serviceDate,
-        paymentMethod: b.paymentMethod,
-        price: b.price,
-        subject: "SafeBuild Booking Confirmation"
-      }
-    );
-
-    const sendCancellationEmail = (b) => emailjs.send(
-      EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CANCEL,
-      {
-        to_name: b.name,
-        to_email: b.email,
-        booking_id: b.id,
-        serviceTitle: b.serviceTitle,
-        subject: "SafeBuild Booking Cancellation"
-      }
-    );
-
-    // ✅ Services Data
-    const SERVICES = [
-      { id: "a", title: "Structural Assessment & Audit", image: "images/assessment.jpg", description: "Comprehensive building evaluation.", details: "Includes inspection, testing, and analysis by licensed engineers.", price: 15000 },
-      { id: "b", title: "Retrofitting Design & Simulation", image: "images/design.jpg", description: "Simulation & redesign of weak structures.", details: "3D structural modeling, simulation, and code-compliant redesign.", price: 35000 },
-      { id: "c", title: "Implementation & Retrofitting", image: "images/implementation.jpg", description: "On-site structural rehabilitation and retrofitting.", details: "Reinforcement works executed by certified professionals.", price: 150000 },
-      { id: "d", title: "Consultation & Training", image: "images/training.jpg", description: "Professional workshops and disaster preparedness training.", details: "Customized training programs for your organization.", price: 7000 },
-      { id: "e", title: "Full Project Plan Package", image: "images/fullplan.jpg", description: "Complete structural design & safety documentation.", details: "Full civil engineering plans, materials estimate, and professional consultation.", price: 250000 }
-    ];
-
-    const genBookingId = () => "BK-" + Date.now();
-
-    // ✅ Main App
-    function App() {
-      const [view, setView] = React.useState("services");
-      const [sel, setSel] = React.useState(null);
-      const [bookings, setBookings] = React.useState([]);
-      const [receipt, setReceipt] = React.useState(null);
-      const { push, Toasts } = useToast();
-
-      const confirm = (b) => {
-        setBookings((p) => [...p, b]);
-        setReceipt(b);
-        sendConfirmationEmail(b)
-          .then(() => push("✅ Confirmation email sent!"))
-          .catch(() => push("⚠️ Email sending failed."));
-      };
-
-      const cancel = (id) => {
-        const b = bookings.find((x) => x.id === id);
-        if (!b) return;
-        setBookings((p) => p.map((x) => x.id === id ? { ...x, status: "Cancelled" } : x));
-        sendCancellationEmail(b)
-          .then(() => push("❌ Cancellation email sent!"))
-          .catch(() => push("⚠️ Cancellation email failed."));
-      };
-
-      return (
-        <div className="min-h-screen">
-          <header className="bg-white shadow-sm">
-            <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-              <div>
-                <h1 className="text-xl font-bold">SafeBuild Consultation & Booking</h1>
-                <p className="text-sm text-gray-500">Book consultations, site assessments & training</p>
-              </div>
-              <nav className="flex gap-4">
-                <button onClick={() => setView("services")}>Services</button>
-                <button onClick={() => setView("bookings")}>My Appointments</button>
-              </nav>
-            </div>
-          </header>
-
-          <main className="max-w-6xl mx-auto p-4 grid lg:grid-cols-3 gap-6">
-            <section className="lg:col-span-2">
-              {view === "services" && <ServiceList onBook={setSel} />}
-              {view === "bookings" && <BookingHistory bookings={bookings} onCancel={cancel} />}
-            </section>
-            <aside>
-              <div className="bg-white p-4 rounded shadow">
-                <h3 className="font-semibold mb-2">AI Assistant 🤖</h3>
-                <AIAssistant />
-              </div>
-            </aside>
-          </main>
-
-          {sel && <BookingModal service={sel} onClose={() => setSel(null)} onConfirm={confirm} />}
-          {receipt && receipt.status !== "Cancelled" && <BookingReceiptModal booking={receipt} onClose={() => setReceipt(null)} />}
-          <Toasts />
-        </div>
-      );
-    }
-
-    // ✅ Service List
-    const ServiceList = ({ onBook }) => (
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Our Services</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          {SERVICES.map((s) => (
-            <div key={s.id} className="bg-white p-4 rounded shadow">
-              <img src={s.image} alt={s.title} className="rounded mb-3 h-40 w-full object-cover" />
-              <h3 className="font-semibold">{s.title}</h3>
-              <p className="text-sm text-gray-600">{s.description}</p>
-              <div className="mt-3 flex justify-between items-center">
-                <span className="font-bold text-green-700">₱{s.price.toLocaleString()}</span>
-                <button onClick={() => onBook(s)} className="bg-green-600 text-white px-3 py-1 rounded">Book Now</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-
-    // ✅ Booking Modal
-    function BookingModal({ service, onClose, onConfirm }) {
-      const [name, setName] = React.useState("");
-      const [email, setEmail] = React.useState("");
-      const [address, setAddress] = React.useState("");
-      const [contact, setContact] = React.useState("");
-      const [date, setDate] = React.useState("");
-      const [pm, setPm] = React.useState("cod");
-
-      const confirmBooking = () => {
-        const b = {
-          id: genBookingId(),
-          name,
-          email,
-          address,
-          contact,
-          serviceTitle: service.title,
-          serviceDate: date,
-          paymentMethod: pm,
-          price: service.price,
-          status: "Confirmed"
-        };
-        onConfirm(b);
-        onClose();
-      };
-
-      return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96 space-y-3">
-            <h2 className="text-xl font-semibold">Book {service.title}</h2>
-            <input placeholder="Full Name" className="w-full border rounded px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
-            <input type="email" placeholder="Email" className="w-full border rounded px-3 py-2" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <input placeholder="Address" className="w-full border rounded px-3 py-2" value={address} onChange={(e) => setAddress(e.target.value)} />
-            <input placeholder="Contact Number" className="w-full border rounded px-3 py-2" value={contact} onChange={(e) => setContact(e.target.value)} />
-            <input type="date" className="w-full border rounded px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
-            <select value={pm} onChange={(e) => setPm(e.target.value)} className="w-full border rounded px-3 py-2">
-              <option value="cod">Cash on Delivery</option>
-              <option value="bank">Bank Transfer</option>
-              <option value="gcash">GCash</option>
-            </select>
-            <div className="flex justify-between pt-2">
-              <button onClick={onClose} className="bg-gray-400 text-white px-3 py-2 rounded">Cancel</button>
-              <button onClick={confirmBooking} className="bg-green-600 text-white px-3 py-2 rounded">Confirm</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // ✅ Receipt Modal
-    const BookingReceiptModal = ({ booking, onClose }) => (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded shadow-lg text-center">
-          <h2 className="text-2xl font-semibold mb-2">Booking Confirmed</h2>
-          <p><strong>Service:</strong> {booking.serviceTitle}</p>
-          <p><strong>Name:</strong> {booking.name}</p>
-          <p><strong>Date:</strong> {booking.serviceDate}</p>
-          <p><strong>Payment:</strong> {booking.paymentMethod}</p>
-          <p><strong>Total:</strong> ₱{booking.price.toLocaleString()}</p>
-          <button onClick={onClose} className="mt-3 bg-gray-400 text-white px-4 py-2 rounded">Close</button>
-        </div>
-      </div>
-    );
-
-    // ✅ Booking History
-    const BookingHistory = ({ bookings, onCancel }) => (
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-semibold mb-4">My Appointments</h2>
-        {bookings.length === 0 ? (
-          <p>No bookings yet.</p>
-        ) : (
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border">ID</th>
-                <th className="p-2 border">Service</th>
-                <th className="p-2 border">Date</th>
-                <th className="p-2 border">Status</th>
-                <th className="p-2 border"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((b) => (
-                <tr key={b.id}>
-                  <td className="border p-2">{b.id}</td>
-                  <td className="border p-2">{b.serviceTitle}</td>
-                  <td className="border p-2">{b.serviceDate}</td>
-                  <td className="border p-2">{b.status}</td>
-                  <td className="border p-2 text-center">
-                    {b.status !== "Cancelled" && (
-                      <button onClick={() => onCancel(b.id)} className="bg-red-600 text-white px-2 py-1 rounded text-xs">
-                        Cancel
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    );
-
-    // ✅ AI Assistant
-    function AIAssistant() {
-      const [msgs, setMsgs] = React.useState([{ from: "bot", text: "Hi! I’m SafeBot — need help booking or tracking?" }]);
-      const [input, setInput] = React.useState("");
-
-      const send = (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
-        const text = input.toLowerCase();
-        let reply = "I can assist you with bookings, payments, and cancellations.";
-        if (text.includes("book")) reply = "Click 'Book Now' beside your chosen service.";
-        if (text.includes("cancel")) reply = "Go to 'My Appointments' and click 'Cancel'.";
-        if (text.includes("pay")) reply = "We support COD, GCash, and Bank Transfer.";
-        setMsgs([...msgs, { from: "user", text: input }, { from: "bot", text: reply }]);
-        setInput("");
-      };
-
-      return (
-        <div className="flex flex-col h-80">
-          <div className="flex-1 overflow-auto bg-gray-50 p-2 rounded space-y-2">
-            {msgs.map((m, i) => (
-              <div key={i} className={m.from === "bot" ? "bg-white p-2 rounded shadow text-sm" : "text-right text-blue-700 text-sm"}>
-                {m.text}
-              </div>
-            ))}
-          </div>
-          <form onSubmit={send} className="mt-2 flex gap-2">
-            <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask SafeBot..." className="flex-1 border rounded px-3 py-2 text-sm" />
-            <button className="bg-blue-600 text-white px-3 py-2 rounded text-sm">Send</button>
-          </form>
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
-</body>
-</html>
+api.emailjs.com/api/v1.0/email/send:1  Failed to load resource: the server responded with a status of 400 ()
+cdpn.io/cpe/boomboom/images/implementation.jpg:1  Failed to load resource: the server responded with a status of 404 ()
+cdpn.io/cpe/boomboom/images/fullplan.jpg:1  Failed to load resource: the server responded with a status of 404 ()
+cdpn.io/cpe/boomboom/images/training.jpg:1  Failed to load resource: the server responded with a status of 404 ()
+cdpn.io/cpe/boomboom/images/assessment.jpg:1  Failed to load resource: the server responded with a status of 404 ()
+cdpn.io/cpe/boomboom/images/design.jpg:1  Failed to load resource: the server responded with a status of 404 ()
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 ⚠️ EmailJS SDK not loaded properly
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 ❌ Email send failed (attempt 1): Error: EmailJS not loaded
+    at <anonymous>:81:17
+    at Generator.<anonymous> (<anonymous>:9:1660)
+    at Generator.next (<anonymous>:10:255)
+    at asyncGeneratorStep (<anonymous>:11:70)
+    at _next (<anonymous>:12:163)
+    at <anonymous>:12:299
+    at new Promise (<anonymous>)
+    at <anonymous>:12:90
+    at sendEmailWithRetry (<anonymous>:112:17)
+    at sendConfirmationEmail (<anonymous>:116:10)
+    at confirm (<anonymous>:211:5)
+    at confirmBooking (<anonymous>:388:5)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4151:16)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4200:18)
+    at invokeGuardedCallback (react-dom.development.js:4264:33)
+    at invokeGuardedCallbackAndCatchFirstError (react-dom.development.js:4278:27)
+    at executeDispatch (react-dom.development.js:9051:5)
+    at processDispatchQueueItemsInOrder (react-dom.development.js:9083:9)
+    at processDispatchQueue (react-dom.development.js:9096:7)
+    at dispatchEventsForPlugins (react-dom.development.js:9107:5)
+    at react-dom.development.js:9298:14
+    at batchedUpdates$1 (react-dom.development.js:26189:14)
+    at batchedUpdates (react-dom.development.js:3978:14)
+    at dispatchEventForPluginEventSystem (react-dom.development.js:9297:5)
+    at dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (react-dom.development.js:6475:7)
+    at dispatchEvent (react-dom.development.js:6467:7)
+    at dispatchDiscreteEvent (react-dom.development.js:6440:7)
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 🔁 Retrying...
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 ❌ Email send failed (attempt 2): Error: EmailJS not loaded
+    at <anonymous>:81:17
+    at Generator.<anonymous> (<anonymous>:9:1660)
+    at Generator.next (<anonymous>:10:255)
+    at asyncGeneratorStep (<anonymous>:11:70)
+    at _next (<anonymous>:12:163)
+    at <anonymous>:12:299
+    at new Promise (<anonymous>)
+    at <anonymous>:12:90
+    at sendEmailWithRetry (<anonymous>:112:17)
+    at <anonymous>:103:32
+    at Generator.<anonymous> (<anonymous>:9:1660)
+    at Generator.next (<anonymous>:10:255)
+    at asyncGeneratorStep (<anonymous>:11:70)
+    at _next (<anonymous>:12:163)
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 🔁 Retrying...
+iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1 ❌ Email send failed (attempt 3): Error: EmailJS not loaded
+    at <anonymous>:81:17
+    at Generator.<anonymous> (<anonymous>:9:1660)
+    at Generator.next (<anonymous>:10:255)
+    at asyncGeneratorStep (<anonymous>:11:70)
+    at _next (<anonymous>:12:163)
+    at <anonymous>:12:299
+    at new Promise (<anonymous>)
+    at <anonymous>:12:90
+    at sendEmailWithRetry (<anonymous>:112:17)
+    at <anonymous>:103:32
+    at Generator.<anonymous> (<anonymous>:9:1660)
+    at Generator.next (<anonymous>:10:255)
+    at asyncGeneratorStep (<anonymous>:11:70)
+    at _next (<anonymous>:12:163)
+(anonymous) @ iframeConsoleRunner-6d8bf8b4b479137260842506acbb12717dace0823c023e08b96360e60b0840d9.js:1
