@@ -16,17 +16,16 @@
   <script type="text/babel">
     // =================== CONFIGURE EMAILJS ===================
     if (window.emailjs) {
-  try {
-    emailjs.init('D_NUbf5PnJavAf60R'); // your public key
-  } catch (e) {
-    console.warn('emailjs init error', e);
-  }
-}
+      try {
+        emailjs.init('D_NUbf5PnJavAf60R'); // your public key
+      } catch (e) {
+        console.warn('emailjs init error', e);
+      }
+    }
 
-const EMAILJS_SERVICE_ID = 'service_gum5cxs';
-const EMAILJS_TEMPLATE_CONFIRM = 'template_7nyhfs8';
-const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l'; 
-
+    const EMAILJS_SERVICE_ID = 'service_gum5cxs';
+    const EMAILJS_TEMPLATE_CONFIRM = 'template_7nyhfs8';
+    const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
 
     // =================== TOAST HANDLER (8s) ===================
     function useToast() {
@@ -49,9 +48,8 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
     }
 
     // =================== EMAIL HELPERS ===================
-    const sendConfirmationEmail = (b) => emailjs.send(
-      EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM,
-      {
+    const sendConfirmationEmail = (b) => {
+      return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
         to_name: b.name,
         to_email: b.email,
         booking_id: b.id,
@@ -61,20 +59,23 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
         serviceDate: b.serviceDate,
         paymentMethod: b.paymentMethod,
         price: b.price,
-        subject: 'SafeBuild Booking Confirmation'
-      }
-    );
+        subject: "SafeBuild Booking Confirmation"
+      })
+      .then(() => console.log("✅ Confirmation email sent"))
+      .catch((err) => console.error("❌ Confirmation email failed:", err));
+    };
 
-    const sendCancellationEmail = (b) => emailjs.send(
-      EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CANCEL,
-      {
+    const sendCancellationEmail = (b) => {
+      return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CANCEL, {
         to_name: b.name,
         to_email: b.email,
         booking_id: b.id,
         serviceTitle: b.serviceTitle,
-        subject: 'SafeBuild Booking Cancellation'
-      }
-    );
+        subject: "SafeBuild Booking Cancellation"
+      })
+      .then(() => console.log("✅ Cancellation email sent"))
+      .catch((err) => console.error("❌ Cancellation email failed:", err));
+    };
 
     // =================== DATA ===================
     const SERVICES = [
@@ -97,14 +98,37 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
       const confirm=(b)=>{
         setBookings(p=>[...p,b]);
         setCurrent(b); setReceipt(b); setView('booking-confirm');
-        sendConfirmationEmail(b).then(()=>push('📨 Confirmation email sent!')).catch(()=>push('⚠️ Email failed.'));
+
+        sendConfirmationEmail(b)
+          .then(()=>{
+            push('📨 Confirmation email sent!');
+            // Send a follow-up notification (reusing confirmation template)
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
+              to_name: b.name,
+              to_email: b.email,
+              subject: 'SafeBuild Booking Notification',
+              serviceTitle: b.serviceTitle,
+              serviceDate: b.serviceDate,
+              paymentMethod: b.paymentMethod,
+              price: b.price
+            })
+            .then(()=>push('✅ Booking notification sent!'))
+            .catch(()=>push('⚠️ Notification email failed.'));
+          })
+          .catch(()=>push('⚠️ Confirmation email failed.'));
       };
+
       const cancel=(id)=>{
         const b=bookings.find(x=>x.id===id);
         if(!b)return;
         setBookings(p=>p.map(x=>x.id===id?{...x,status:'Cancelled'}:x));
         setCurrent(c=>c&&c.id===id?{...c,status:'Cancelled'}:c);
-        sendCancellationEmail(b).then(()=>push('❌ Cancellation email sent!')).catch(()=>push('⚠️ Email failed.'));
+        sendCancellationEmail(b)
+          .then(()=>{
+            push('❌ Cancellation email sent!');
+            push('✅ Booking cancelled successfully!');
+          })
+          .catch(()=>push('⚠️ Email failed.'));
       };
 
       return(<div className="min-h-screen">
@@ -132,23 +156,21 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
     }
 
     // =================== COMPONENTS ===================
-    const ServiceList=({onBook})=>(
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Services</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          {SERVICES.map(s=>
-            <div key={s.id} className="bg-white p-4 rounded shadow">
-              <img src={s.image} className="rounded mb-3 h-40 w-full object-cover"/>
-              <h3 className="font-semibold">{s.title}</h3>
-              <p className="text-sm text-gray-600">{s.description}</p>
-              <div className="mt-3 flex justify-between items-center">
-                <span className="font-bold">₱{s.price.toLocaleString()}</span>
-                <button onClick={()=>onBook(s)} className="bg-green-600 text-white px-3 py-1 rounded">Book Now</button>
-              </div>
-            </div>)}
-        </div>
+    const ServiceList=({onBook})=>(<div>
+      <h2 className="text-2xl font-semibold mb-4">Services</h2>
+      <div className="grid md:grid-cols-2 gap-4">
+        {SERVICES.map(s=>
+          <div key={s.id} className="bg-white p-4 rounded shadow">
+            <img src={s.image} className="rounded mb-3 h-40 w-full object-cover"/>
+            <h3 className="font-semibold">{s.title}</h3>
+            <p className="text-sm text-gray-600">{s.description}</p>
+            <div className="mt-3 flex justify-between items-center">
+              <span className="font-bold">₱{s.price.toLocaleString()}</span>
+              <button onClick={()=>onBook(s)} className="bg-green-600 text-white px-3 py-1 rounded">Book Now</button>
+            </div>
+          </div>)}
       </div>
-    );
+    </div>);
 
     function BookingModal({service,onClose,onConfirm}){
       const [name,setName]=React.useState(''),[email,setEmail]=React.useState(''),[addr,setAddr]=React.useState(''),[contact,setContact]=React.useState(''),
@@ -156,13 +178,10 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
       [acct,setAcct]=React.useState(''),[gcash,setGcash]=React.useState(''),[show,setShow]=React.useState(false);
       const handleDigits=(v,l,s)=>s(v.replace(/\D/g,'').slice(0,l));
       const limit=()=>bank==='BPI'?10:bank==='BDO'?12:bank==='Metrobank'?13:0;
-      const confirmB=()=>{
-        const b={id:genBookingId(),serviceTitle:service.title,name,email,address:addr,contact,
+      const confirmB=()=>{const b={id:genBookingId(),serviceTitle:service.title,name,email,address:addr,contact,
           bookingDate:new Date().toLocaleString(),
           serviceDate:new Date(date+'T'+time).toLocaleString(),
-          paymentMethod:pm,bank,account:acct,gcash,price:service.price,status:'Confirmed'};
-        onConfirm(b);
-      };
+          paymentMethod:pm,bank,account:acct,gcash,price:service.price,status:'Confirmed'};onConfirm(b);};
       return(<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-11/12 md:w-1/2 max-h-[90vh] overflow-auto">
           <h2 className="text-2xl font-semibold mb-2">Book: {service.title}</h2>
@@ -231,33 +250,44 @@ const EMAILJS_TEMPLATE_CANCEL = 'template_lko0n9l';
       </div>);
     };
 
-    const BookingHistory=({bookings})=>(
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-semibold mb-4">My Appointments</h2>
-        {bookings.length===0?<p>No bookings yet.</p>:
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100"><tr><th className="p-2 border">ID</th><th className="p-2 border">Service</th><th className="p-2 border">Address</th><th className="p-2 border">Contact</th><th className="p-2 border">Date</th><th className="p-2 border">Payment</th><th className="p-2 border">Status</th></tr></thead>
-            <tbody>{bookings.map(b=><tr key={b.id}><td className="p-2 border">{b.id}</td><td className="p-2 border">{b.serviceTitle}</td><td className="p-2 border">{b.address}</td><td className="p-2 border">{b.contact}</td><td className="p-2 border">{b.serviceDate}</td><td className="p-2 border">{b.paymentMethod.toUpperCase()}</td><td className="p-2 border">{b.status==='Cancelled'?<span className="text-red-600 font-semibold">Cancelled</span>:<span className="text-green-600 font-semibold">Confirmed</span>}</td></tr>)}</tbody>
-          </table>}
-      </div>
-    );
+    const BookingHistory=({bookings})=>(<div className="bg-white p-6 rounded shadow">
+      <h2 className="text-2xl font-semibold mb-4">My Appointments</h2>
+      {bookings.length===0?<p>No bookings yet.</p>:
+        <table className="w-full text-sm border">
+          <thead className="bg-gray-100"><tr><th className="p-2 border">ID</th><th className="p-2 border">Service</th><th className="p-2 border">Address</th><th className="p-2 border">Contact</th><th className="p-2 border">Date</th><th className="p-2 border">Payment</th><th className="p-2 border">Status</th></tr></thead>
+          <tbody>{bookings.map(b=><tr key={b.id}><td className="p-2 border">{b.id}</td><td className="p-2 border">{b.serviceTitle}</td><td className="p-2 border">{b.address}</td><td className="p-2 border">{b.contact}</td><td className="p-2 border">{b.serviceDate}</td><td className="p-2 border">{b.paymentMethod.toUpperCase()}</td><td className="p-2 border">{b.status==='Cancelled'?<span className="text-red-600 font-semibold">Cancelled</span>:<span className="text-green-600 font-semibold">Confirmed</span>}</td></tr>)}</tbody>
+        </table>}
+    </div>);
 
-    const AIAssistant=()=>{
-      const [msgs,setMsgs]=React.useState([{from:'bot',text:"Hi! I'm SafeBot. Ask about booking, payment, or cancellation."}]);
-      const [input,set]=React.useState('');
-      const send=e=>{
+    const AIAssistant = () => {
+      const [msgs,setMsgs] = React.useState([{from:'bot',text:"Hi! I'm SafeBot. Ask about booking, payment, or cancellation."}]);
+      const [input,set] = React.useState('');
+      const send = e => {
         e.preventDefault();
-        if(!input.trim())return;
-        const t=input.toLowerCase();
-        let r="I can help with booking, schedules, or payment.";
-        if(t.includes('book'))r="Click 'Book Now' beside a service.";
-        if(t.includes('pay'))r="You can pay via COD, Bank (Metrobank, BDO, BPI) or GCash.";
-        if(t.includes('cancel'))r="Use the 'Cancel Booking' button; you'll get a cancellation email.";
-        setMsgs([...msgs,{from:'user',text:input},{from:'bot',text:r}]);set('');
+        if(!input.trim()) return;
+        const t = input.toLowerCase();
+        let r = "I can help with booking, schedules, or payment.";
+        if(t.includes('book')) r = "Click 'Book Now' beside a service.";
+        if(t.includes('pay')) r = "You can pay via COD, Bank (Metrobank, BDO, BPI) or GCash.";
+        if(t.includes('cancel')) r = "Use the 'Cancel Booking' button; you'll get a cancellation email.";
+        setMsgs([...msgs,{from:'user',text:input},{from:'bot',text:r}]);
+        set('');
       };
-      return(<div className="flex flex-col h-80"><div className="flex-1 overflow-auto bg-gray-50 p-2 rounded space-y-2">
-        {msgs.map((m,i)=><div key={i} className={m.from==='bot'?'bg-white p-2 rounded shadow text-sm':'text-right text-blue-700 text-sm'}>{m.text}</div>)}</div>
-        <form onSubmit={send} className="mt-2 flex gap-2"><input value={input} onChange={e=>set(e.target.value)} placeholder="Ask SafeBot..." className="flex-1 border rounded px-3 py-2 text-sm"/><button className="bg-blue-600 text-white px-3 py-2 rounded text-sm">Send</button></form></div>);
+      return (
+        <div className="flex flex-col h-80">
+          <div className="flex-1 overflow-auto bg-gray-50 p-2 rounded space-y-2">
+            {msgs.map((m,i)=>
+              <div key={i} className={m.from==='bot'?'bg-white p-2 rounded shadow text-sm':'text-right text-blue-700 text-sm'}>
+                {m.text}
+              </div>
+            )}
+          </div>
+          <form onSubmit={send} className="mt-2 flex gap-2">
+            <input value={input} onChange={e=>set(e.target.value)} placeholder="Ask SafeBot..." className="flex-1 border rounded px-3 py-2 text-sm"/>
+            <button className="bg-blue-600 text-white px-3 py-2 rounded text-sm">Send</button>
+          </form>
+        </div>
+      );
     };
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
